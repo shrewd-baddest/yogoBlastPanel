@@ -1,0 +1,88 @@
+CREATE TABLE person(
+ID int PRIMARY KEY,
+firstname VARCHAR(255),
+secondName VARCHAR(255),
+passcode VARCHAR(255),
+email VARCHAR(255)
+);
+CREATE TABLE category(
+    category_id INT AUTO_INCREMENT  PRIMARY KEY,
+    category_name  VARCHAR(255),
+    description VARCHAR(255));
+
+CREATE TABLE products(
+   products_id INT AUTO_INCREMENT  PRIMARY KEY,
+ products_name  VARCHAR(255),
+    weight_ml VARCHAR(255),
+    price FLOAT (10,2),
+    stock INT(10),
+    image_url VARCHAR(1000),
+      category_id INT,  -- Add this line to define the FK column
+FOREIGN KEY(categories_id) REFERENCES category(category_id));
+
+CREATE TABLE ORDERS(
+  id int AUTO_INCREMENT primary KEY,
+   user_id int,
+   total_price decimal(10,2),
+    order_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    statuz varchar(100),
+    FOREIGN KEY(user_id) REFERENCES person(id)
+);
+
+CREATE TABLE ORDER_ITEMS( 
+     id int AUTO_INCREMENT primary KEY,  
+ order_id int, 
+   product_id int, 
+   price decimal(10,2),  quantity int(255),  
+     FOREIGN KEY(product_id) REFERENCES products(products_id),   
+ FOREIGN KEY(order_id) REFERENCES ORDERS(id));
+
+ CREATE TABLE product_reviews(
+  id int AUTO_INCREMENT primary KEY,
+  product_id int ,
+   user_id int,
+   rating int CHECK(rating>=1 AND rating<=5),
+   comments VARCHAR(255),
+    quantity int,
+    FOREIGN KEY(product_id) REFERENCES products(products_id),
+    FOREIGN KEY(user_id) REFERENCES person(id)
+);
+CREATE TABLE shoping_cart(
+  id int AUTO_INCREMENT primary KEY,
+  product_id int ,
+   user_id int,
+    quantity int,
+    FOREIGN KEY(product_id) REFERENCES products(products_id),
+    FOREIGN KEY(user_id) REFERENCES person(id)
+);
+CREATE TABLE users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100),
+  email VARCHAR(100) UNIQUE,
+  password VARCHAR(255),
+  role ENUM('admin', 'manager', 'seller') DEFAULT 'seller',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE sales (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT,
+  total DECIMAL(10,2),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+CREATE TABLE sale_items (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  order_id INT,
+  sale_id INT,
+   quantity INT,
+  price DECIMAL(10,2),
+  FOREIGN KEY (order_id) REFERENCES ORDER_ITEMS(id),
+  FOREIGN KEY (sale_id) REFERENCES sales(id),
+ );
+CREATE TABLE notifications (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  type VARCHAR(100),
+  message VARCHAR(255),
+  is_read BOOLEAN DEFAULT FALSE,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
