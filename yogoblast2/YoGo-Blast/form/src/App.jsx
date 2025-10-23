@@ -11,10 +11,11 @@ import Cart  from './webpages/Cart';
 import Acct from './webpages/Acct';
 import Contact from './webpages/contact';
  import LayOut from './Layout/LayOut';
-import Display, { productDetails } from './webpages/Display';
+import Display  from './webpages/Display';
 import Error from './pages/Error';
 import Search from './webpages/search';
 import Welcome from './pages/Welcome';
+import { productDetails } from './webpages/productDetails';
  
 function App() {
   const router=createBrowserRouter(
