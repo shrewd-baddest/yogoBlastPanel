@@ -20,10 +20,11 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const frontendPath=path.join(__dirname,'../YoGo-Blast/form/dist')
 app.use(express.static(frontendPath));
+app.get(/.*/, (req, res) => {
+  res.sendFile(path.join(frontendPath, 'index.html'));
+});
 
-app.get('*',(req,res)=>{
-  res.sendFile(path.join(frontendPath,'index.html'));
-})
+
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
