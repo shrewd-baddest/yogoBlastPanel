@@ -13,7 +13,7 @@ import Contact from './webpages/Contact';
  import LayOut from './Layout/LayOut';
 import Display  from './webpages/Display';
 import Error from './pages/Error';
-import Search from './webpages/search';
+import Search from './webpages/Search';
 import Welcome from './pages/Welcome';
 import { productDetails } from './webpages/productDetails';
  
