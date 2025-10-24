@@ -1,4 +1,7 @@
 import dotenv from 'dotenv';
+ipmort path from 'path';
+import { fileURLToPath } from 'url';
+
 dotenv.config();
 import express from 'express';
 import User from './Routers/user.js'
@@ -13,8 +16,14 @@ app.use(express.json());
 app.use(express.static('public'));
 app.use('/user',User);
 app.use('/pages',pages);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const frontendPath=path.join(__dirname,'../YoGo-Blast/form/dist')
+app.use(express.static(frontendPath));
 
-
+app.get('*',(req,res)=>{
+  res.sendFile(path.join(frontendPath,'index.html'));
+})
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
