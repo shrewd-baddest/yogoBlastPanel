@@ -6,7 +6,7 @@ export const productDetails = async ({ params }) => {
     product_id: id,
   };
   try {
-    const response = await axios.post('http://localhost:3001/pages/display', p_id);
+    const response = await axios.post('https://yogoblastpanel-3.onrender.com/pages/display', p_id);
     if (response.data) {
       return response.data;
     }
