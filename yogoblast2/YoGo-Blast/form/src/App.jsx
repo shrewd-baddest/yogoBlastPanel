@@ -9,7 +9,7 @@ import Home, { n_image } from './webpages/Home';
 import Categories, { Category } from './webpages/Categories';
 import Cart  from './webpages/Cart';
 import Acct from './webpages/Acct';
-import Contact from './webpages/contact';
+import Contact from './webpages/Contact';
  import LayOut from './Layout/LayOut';
 import Display  from './webpages/Display';
 import Error from './pages/Error';
