@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-ipmort path from 'path';
+import path from 'path';
 import { fileURLToPath } from 'url';
 
 dotenv.config();
