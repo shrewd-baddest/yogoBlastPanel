@@ -9,7 +9,7 @@ const Loginn = () => {
   const [userInfo, setUserInfo] = useState(null);
 
   const buton = 'LOGIN';
-  const url = 'http://localhost:3001/user/login';
+  const url = 'https://yogoblastpanel-3.onrender.com/user/login';
 
   const navigate = useNavigate();
 
