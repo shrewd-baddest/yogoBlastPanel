@@ -16,7 +16,7 @@ const [ID,setID] =useState('');
   const handleTest= (e) => {
     
       e.preventDefault();
-const url="http://localhost:3001/user/regist";
+const url="https://yogoblastpanel-3.onrender.com/user/regist";
 
   // You can now send the name and email via axios to your server
   if(ID!=''&& email!=''&& fName!='' && sName!=''&& pCode!=''){

@@ -12,7 +12,7 @@ export const CartProvider = ({ children }) => {
     const [actprice,setActprice]=useState(0);
   const refreshCartCount = () => {
     const token=localStorage.getItem('token');
-    axios.get('http://localhost:3001/pages/cart', {
+    axios.get('https://yogoblastpanel-3.onrender.com/pages/cart', {
           headers: { Authorization: `Bearer ${token}` }})
       .then(response => {
         const Counts = parseInt(response.data.total_quantity, 10) || 0;
@@ -44,7 +44,7 @@ export const CartProvider = ({ children }) => {
 
   try {
     // 1. Send payment request to backend
-    const res = await axios.post('http://localhost:3001/pages/payment', paymentData, {
+    const res = await axios.post('https://yogoblastpanel-3.onrender.com/pages/payment', paymentData, {
           headers: { Authorization: `Bearer ${token}` }});
      if (res.data.status === 'success') {
       // 2. Wait 10 seconds to give M-Pesa time to send callback
@@ -52,7 +52,7 @@ export const CartProvider = ({ children }) => {
 
       // 3. Ask backend if payment status is successful
       const orderRes = await axios.post(
-        'http://localhost:3001/pages/orders',
+        'https://yogoblastpanel-3.onrender.com/pages/orders',
         { productId: id, 
           price:actprice,
           quantity: quantity }, {

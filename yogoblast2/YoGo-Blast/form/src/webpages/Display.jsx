@@ -20,7 +20,7 @@ const token=localStorage.getItem('token');
 ()=>{
 const n_image = async () => {
   try{
-    const res = await fetch('http://localhost:3001/pages/home');
+    const res = await fetch('https://yogoblastpanel-3.onrender.com/pages/home');
     setChoices(await res.json());
   }
   catch(error){
@@ -74,7 +74,7 @@ const addToCart = async (productId) => {
     console.log(cartData.productId);
     try {
       const response = await axios.post(
-        'http://localhost:3001/pages/cart',
+        'https://yogoblastpanel-3.onrender.com/pages/cart',
         cartData, //Include credentials in the request
         {
           headers: {

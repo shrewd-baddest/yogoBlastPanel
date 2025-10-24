@@ -37,7 +37,7 @@ export const Category=async ({params}) => {
  }
  try{
 
-   const response=await axios.post('http://localhost:3001/pages/Category',Name);
+   const response=await axios.post('https://yogoblastpanel-3.onrender.com/pages/Category',Name);
    if(response.data){
     return response.data;
    }

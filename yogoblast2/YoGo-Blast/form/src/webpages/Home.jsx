@@ -191,7 +191,7 @@ export default Home;
 
 export const n_image = async () => {
   try {
-      const res = await fetch('http://localhost:3001/pages/home');
+      const res = await fetch('https://yogoblastpanel-3.onrender.com/pages/home');
     if (!res.ok) {
       throw new Error(`Server responded with status ${res.status}`);
     }

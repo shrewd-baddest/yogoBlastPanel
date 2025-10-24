@@ -17,7 +17,7 @@ const Acct = () => {
 
    const dater = async () => {
     try {
-      const response = await fetch('http://localhost:3001/pages/Acct', {
+      const response = await fetch('https://yogoblastpanel-3.onrender.com/pages/Acct', {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -34,7 +34,7 @@ const Acct = () => {
 
   const logOut = async () => {
     try {
-      const response = await axios.get('http://localhost:3001/user/logout' , {
+      const response = await axios.get('https://yogoblastpanel-3.onrender.com/user/logout' , {
           headers: { Authorization: `Bearer ${token}` }} );
       if (response.data.status === 'success') {
         alert('user successfully logged Out');

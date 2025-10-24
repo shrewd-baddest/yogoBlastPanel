@@ -21,7 +21,7 @@ const Cart = () => {
   
    const fetchblursucts = async () => {
     try {
-      const response = await fetch('http://localhost:3001/pages/cartDisplay', {
+      const response = await fetch('https://yogoblastpanel-3.onrender.com//pages/cartDisplay', {
           headers: { Authorization: `Bearer ${token}`}});
       const data = await response.json();
       console.log(data);
@@ -104,7 +104,7 @@ if (blurs.current){
     };
 
     try {
-      const res = await axios.post('http://localhost:3001/pages/update', deleteData, {
+      const res = await axios.post('https://yogoblastpanel-3.onrender.com/pages/update', deleteData, {
           headers: { Authorization: `Bearer ${token}` }});
      console.log(res);
       if (res.data.status === "success") {
