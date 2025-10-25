@@ -82,8 +82,7 @@ const addToCart = async (productId) => {
           },
         }
       );
-      alert(response.data)
-      if(response.data.status=="success"){
+       if(response.data.status=="success"){
          const num=Number(quantity);
         increamentCart(num);
         alert(response.data.message);

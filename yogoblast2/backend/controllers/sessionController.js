@@ -41,7 +41,7 @@ const cart = async (req, res) => {
 
       const sql = `INSERT INTO shoping_cart (product_id, user_id, quantity) VALUES (?, ?, ?)`;
       const [result] = await db.execute(sql, [productId, userId, Quantity]);
-      res.status(201).json({status:'success'});
+      res.status(201).json({status:'success',message: "Item added to cart successfully" });
     }
   } catch (error) {
     console.error("Error handling cart:", error);
@@ -88,7 +88,7 @@ const update = async (req, res) => {
       await db.execute(sql, [deleteId, userId]);
     }
 
-    res.status(200).json({ message: "Cart updated successfully" });
+    res.status(200).json({status: "success", message: "cart updated successfully" });
   } catch (error) {
     console.error("Error updating cart:", error);
     res.status(500).json({ message: "Internal server error" });
