@@ -254,7 +254,7 @@ min-height:7rem;
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: center;
+  /* justify-content: center; */
   flex-wrap: wrap;
   background-color: whitesmoke;
 

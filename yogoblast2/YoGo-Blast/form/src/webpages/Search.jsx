@@ -12,7 +12,7 @@ useEffect(
   ()=>{
 const fetchData=async()=>{
   try {
-    const response = await axios.post('http://localhost:3001/pages/search', {
+    const response = await axios.post('https://yogoblastpanel-3.onrender.com/pages/search', {
       search: query,
     });
        console.log("Response received:", response.data);
