@@ -1,3 +1,6 @@
+*{
+  scrollbar-width: none;
+}
 body{
  margin: 0%;
  background-color: rgb(217, 231, 231);
@@ -94,6 +97,36 @@ padding-bottom:5px;
   }
   a:hover{
     cursor: pointer;
+  }
+  .bot{
+    position:absolute;
+    top:29%;
+    right:2rem;
+    z-index:100; 
+    position:fixed;
+  }
+  .msg{
+    position:absolute;
+    max-height:2rem;
+    max-width:fit-content;
+    right:2rem;
+    top:50%;
+    position:fixed;
+  }
+  .msg:hover{
+    cursor:pointer;
+  }
+  .xmsg{
+    position:absolute;
+    max-height:2rem;
+    max-width:fit-content;
+    right:2rem;
+    top:29%;
+    position:fixed;
+    font-weight:bolder;
+  }
+  .xmsg:hover{
+    cursor:pointer;
   }
  .company_info{
     background-color: rgb(241, 238, 238);
