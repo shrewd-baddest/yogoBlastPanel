@@ -34,16 +34,20 @@ const search=async(req,res)=>{
 const {search:searchTerm}=req.body;
 try{
 const sql= `select 
- products_id,
- products_name,
-    weight_ml,
-    price,
-    image_url
+products.products_id,
+ products.products_name,
+    products.weight_ml,
+    products.price,
+    products.image_url
     FROM products
-    where products_name LIKE ? OR
-    description LIKE ?`;
+    INNER JOIN category
+    ON products.category_id=category.category_id
+    where products.products_name LIKE ? OR
+    products.weight_ml LIKE ? OR products.price LIKE ?
+    OR category.category_name LIKE ?`;
 const like=`%${searchTerm}%`;
-const [row]=await db.execute(sql,[like,like]);
+const [row]=await db.execute(sql,[like,like,like,like]);
+console.log(row);
       res.status(201).json(row);
 }
 catch(error){
