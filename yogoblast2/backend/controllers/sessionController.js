@@ -91,7 +91,7 @@ const update = async (req, res) => {
     res.status(200).json({status: "success", message: "cart updated successfully" });
   } catch (error) {
     console.error("Error updating cart:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ status: "error", message: "Internal server error" });
   }
 };
 
@@ -99,7 +99,7 @@ const orders=async(req,res)=>{
   const user=req.user.id;
 const {product_id,quantity,price}=req.body;
  try{
-const sql=`SELECT * FROM orders WHERE user_id = ? ORDER BY order_date DESC LIMIT 1`;
+const sql=`SELECT * FROM ORDERS WHERE user_id = ? ORDER BY order_date DESC LIMIT 1`;
    const [result]=await db.execute(sql,[user]);
 
    if (result.length > 0 && result[0].statuz == 0) {
@@ -124,33 +124,33 @@ catch (error) {
 }
 
 const payment = async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const { phoneNumber, price, productId } = req.body;
+  const userId = req.user.id;
+  const { phoneNumber, price, productId } = req.body;
+  // let userId, productId;
+  const consumerKey = process.env.CONSUMER_KEY;
+  const consumerSecret = process.env.CONSUMER_SECRET;
+  const shortcode = process.env.SHORTCODE || 174379;
+  const passkey = process.env.PASSKEY;
+   try {
+ 
 
-    const consumerKey = PROCESS.ENV.CONSUMER_KEY;
-    const consumerSecret = PROCESS.ENV.CONSUMER_SECRET;
+    
 
     const credentials = Buffer.from(`${consumerKey}:${consumerSecret}`).toString('base64');
 
-    // Get access token
+    // 1️ Get Access Token
     const tokenRes = await axios.get(
       'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials',
-      {
-        headers: {
-          Authorization: `Basic ${credentials}`,
-        },
-      }
+      { headers: { Authorization: `Basic ${credentials}` } }
     );
-
+    console.log("Token Response:", tokenRes.data);
     const accessToken = tokenRes.data.access_token;
 
-    const shortcode = 174379;
-    const passkey = 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919';
-    const timestamp = new Date().toISOString().replace(/[^0-9]/g, "").slice(0, 14);
+    // 2️ Build Password
+    const timestamp = new Date().toISOString().replace(/[^0-9]/g, '').slice(0, 14);
     const password = Buffer.from(`${shortcode}${passkey}${timestamp}`).toString('base64');
 
-    // Make STK Push request
+    // 3️ STK Push
     const stkRes = await axios.post(
       'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest',
       {
@@ -162,34 +162,39 @@ const payment = async (req, res) => {
         PartyA: phoneNumber,
         PartyB: shortcode,
         PhoneNumber: phoneNumber,
-        CallBackURL: "https://yourdomain.com/api/callback",  
-        AccountReference: "YogurtBlast",  
+        CallBackURL: "https://yogoblastpanel-3.onrender.com/pages/callback",
+        AccountReference: "YogurtBlast",
         TransactionDesc: "Product purchase",
       },
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
-        }, 
+        },
       }
     );
 
     const checkoutId = stkRes.data.CheckoutRequestID;
 
-    // Insert into mpesa_request table
+    // 4️ Insert into DB
     const insertSql = `
-      INSERT INTO mpesa_request (checkout_id, user_id, amount, created_at, product_id)
-      VALUES (?, ?, ?, ?, ?)
+      INSERT INTO mpesa_request (checkout_id, user_id, amount, created_at, productId)
+      VALUES (?, ?, ?, NOW(), ?)
     `;
-    await db.execute(insertSql, [checkoutId, userId, price, timestamp, productId]);
+    await db.execute(insertSql, [checkoutId, userId, price, productId]);
 
+    // 5️ Respond & Notify
     res.status(200).json({ status: 'success', message: 'STK Push sent', checkoutId });
     notifications('payment', `Payment initiated for product #${productId}`, userId, productId);
-   } catch (error) {
-    console.error("Payment error:", error.response?.data || error.message);
-    res.status(500).json({ status: 'error', message: 'Payment initiation failed' });
-    notifications('payment', `Payment initiation failed for product #${productId}`, userId, productId);
 
+  } catch (error) {
+    console.error("Payment error:", error.response?.data || error.message);
+    res.status(500).json({
+      status: 'error',
+      message: error.response?.data?.errorMessage || 'Payment initiation failed',
+    });
+
+    notifications('payment', `Payment initiation failed for product #${productId}`, userId, productId);
   }
 };
 

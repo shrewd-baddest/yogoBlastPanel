@@ -90,10 +90,12 @@ if (blurs.current){
   },
   [totals]
   )
+ 
+ const paymentSubmit = async () => {
+    await payment();  
+  
 
-
-
-
+  };
 
   const deleteProduct = async(product) => {
     //  setDeletingId(product.products_id);
@@ -154,7 +156,7 @@ if (blurs.current){
         <p className='cart-psg'>we guarantee a secure money transaction and 100% refund</p>
               <p className='cart-price'>Ksh:{price!=null?price.toFixed(2):'0.00'}</p>
                     </div>
-                  <form onSubmit={e => { e.preventDefault(); payment(); }} >
+                  <form onSubmit={e => { e.preventDefault(); paymentSubmit(); }} >
                     <div className='payment-form'>       <label style={{fontWeight:'bold'}}>Phone Number:</label>
               <input
     type="tel"
@@ -173,7 +175,7 @@ if (blurs.current){
     
   />
   </div>
-              <button className='pay' type="submit">Submit</button>
+              <button className='pay' type="submit" >Submit</button>
       </form>
             </div>
  

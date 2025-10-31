@@ -17,11 +17,12 @@ router.post('/display',display);
 router.get('/Acct',verifyToken,account);
 router.get('/cart',verifyToken,cart); 
 router.post('/cart',verifyToken,cart);
-router.post('/payment',verifyToken,payment);
+router.post('/payment',payment);
 router.get('/cartDisplay',verifyToken,cartDisplay); 
 router.post('/update',verifyToken,update);
 router.post('/orders',verifyToken,orders);
 router.post('/callback',callback);
+router.get('/callback',verifyToken,callback);
 router.post('/category',cartegory);
 router.post('/search',search);
  

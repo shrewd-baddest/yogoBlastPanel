@@ -1,33 +1,84 @@
-import { sendMail, sendSMS } from "../middleware/message";
+
+import db from '../controllers/dbConnect.js';
+import { sendMail,sendSMS } from '../middleware/message.js';
 
 const callback = async (req, res) => {
   try {
-    const { Body } = req.body;
-    const metaData = Body.stkCallback.CallbackMetadata.Item;
-    const amountItem = metaData.find(item => item.Name === 'Amount');
-    const mpesaReceiptItem = metaData.find(item => item.Name === 'MpesaReceiptNumber');
-    const transactionDateItem = metaData.find(item => item.Name === 'TransactionDate');
-    const phoneNumberItem = metaData.find(item => item.Name === 'PhoneNumber');
+    // 🟢 Handle POST (Safaricom callback)
+    if (req.method === 'POST') {
+      const { Body } = req.body;
 
-    const paymentDetails = {
-      amount: amountItem ? amountItem.Value : null,
-      mpesaReceiptNumber: mpesaReceiptItem ? mpesaReceiptItem.Value : null,
-      transactionDate: transactionDateItem ? transactionDateItem.Value : null,
-    };
-     if (Body.stkCallback.ResultCode === 0) {
-       const recipient = process.env.ADMIN_MAIL || "admin@example.com";
-      const phoneNumber = phoneNumberItem?.Value || "Unknown";
+      if (!Body || !Body.stkCallback) {
+        return res.status(400).json({ status: "error", message: "Invalid callback data" });
+      }
 
-      await sendMail(recipient, "Payment Successful", `Payment Details: ${JSON.stringify(paymentDetails)}`);
-      await sendSMS(phoneNumber, `Payment Successful: ${JSON.stringify(paymentDetails)}`);
+      const CheckoutRequestID = Body.stkCallback.CheckoutRequestID;
+      const ResultCode = Body.stkCallback.ResultCode;
 
-      res.status(200).json({ success: true, data: paymentDetails });
-    }else {
-      res.status(400).json({ success: false, message: 'Payment failed' });
+      if (ResultCode === 0) {
+        const metaData = Body.stkCallback.CallbackMetadata.Item;
+        const getValue = (name) => metaData.find(item => item.Name === name)?.Value || null;
+
+        const paymentDetails = {
+          amount: getValue("Amount"),
+          mpesaReceiptNumber: getValue("MpesaReceiptNumber"),
+          transactionDate: getValue("TransactionDate"),
+          phoneNumber: getValue("PhoneNumber"),
+        };
+
+        // Match payment record
+        const [rows] = await db.execute(
+          `SELECT user_id, amount, checkout_id FROM mpesa_request WHERE checkout_id = ?`,
+          [CheckoutRequestID]
+        );
+        if (!rows.length) {
+          return res.status(404).json({ status: "error", message: "No matching payment request found." });
+        }
+
+        const { user_id, checkout_id, amount } = rows[0];
+          await db.execute(
+          `UPDATE mpesa_request SET status='paid' WHERE checkout_id=?`,
+          [checkout_id]
+        );
+
+
+        // Create order
+        await db.execute(
+          `INSERT INTO orders (user_id, total_price, MID) VALUES (?, ?, ?)`,
+          [user_id, amount, checkout_id]
+        );
+
+        // Notify
+        const adminMail = process.env.ADMIN_MAIL || "admin@example.com";
+        await sendMail(adminMail, "Payment Successful", `Payment Details: ${JSON.stringify(paymentDetails)}`);
+        await sendSMS(paymentDetails.phoneNumber, `Payment Successful: ${JSON.stringify(paymentDetails)}`);
+
+        return res.status(200).json({ success: true, data: paymentDetails });
+      }
+
+      // Payment failed
+      return res.status(400).json({ success: false, message: "Payment failed" });
+    }
+
+    // 🟢 Handle GET (frontend polling)
+    if (req.method === 'GET') {
+      const userId = req.user.id;
+
+
+      const [rows] = await db.execute(
+        `SELECT * FROM mpesa_request WHERE user_id = ? AND status='paid' ORDER BY created_at DESC LIMIT 1`,
+        [userId]
+      );
+
+      if (!rows.length)
+        return res.status(404).json({ success: false, message: "No orders found" });
+
+      res.status(200).json({ success: true, order: rows[0] });
     }
   } catch (error) {
-    console.error('Error processing callback:', error);
-    res.status(500).json({ success: false, message: 'Internal server error' });
+    console.error("Error processing callback:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
-export { callback };
+
+export default callback;

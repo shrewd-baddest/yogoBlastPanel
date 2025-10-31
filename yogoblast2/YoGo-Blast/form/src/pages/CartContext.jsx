@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const cartContext = createContext();
 
@@ -10,9 +11,10 @@ export const CartProvider = ({ children }) => {
     const [id,setId]=useState(null);
     const [quantity,setQuantity]=useState(null);
     const [actprice,setActprice]=useState(0);
-  const refreshCartCount = () => {
     const token=localStorage.getItem('token');
-    axios.get('https://yogoblastpanel-3.onrender.com/pages/cart', {
+    const navigate=useNavigate();
+  const refreshCartCount = () => {
+     axios.get('http://localhost:3001/pages/cart', {
           headers: { Authorization: `Bearer ${token}` }})
       .then(response => {
         const Counts = parseInt(response.data.total_quantity, 10) || 0;
@@ -41,7 +43,7 @@ export const CartProvider = ({ children }) => {
     phoneNumber: number,
     price: price,
   };
-
+console.log('Payment Data:', paymentData);
   try {
     // 1. Send payment request to backend
     const res = await axios.post('https://yogoblastpanel-3.onrender.com/pages/payment', paymentData, {
@@ -49,22 +51,16 @@ export const CartProvider = ({ children }) => {
      if (res.data.status === 'success') {
       // 2. Wait 10 seconds to give M-Pesa time to send callback
       await new Promise(resolve => setTimeout(resolve, 10000));
-
-      // 3. Ask backend if payment status is successful
-      const orderRes = await axios.post(
-        'https://yogoblastpanel-3.onrender.com/pages/orders',
-        { productId: id, 
-          price:actprice,
-          quantity: quantity }, {
-          headers: { Authorization: `Bearer ${token}` }});
-
-      if (orderRes.data.status === 'success') {
+      // 3. Check the order status
+      const orderStatusRes = await axios.get('https://yogoblastpanel-3.onrender.com/pages/callback', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (orderStatusRes.data.success=== true) {    
         alert('Order placed successfully!');
-        // navigate('/home');
-      } else if (orderRes.data.status === 'pending') {
-        alert('Payment is still pending. Please wait or try again later.');
+        navigate('/home')
+        
       } else {
-        console.log('Order failed: ' + orderRes.data.message);
+        alert('Order placement failed: ' + orderStatusRes.data.message);
       }
     } else {
       alert('STK Push failed: ' + res.data.message);
@@ -72,7 +68,7 @@ export const CartProvider = ({ children }) => {
   } catch (error) {
     console.log('Error during payment:', error);
    } finally {
-    setNumber('254'); // Reset phone number input
+    setNumber('2547'); // Reset phone number input
   }
  
 };
