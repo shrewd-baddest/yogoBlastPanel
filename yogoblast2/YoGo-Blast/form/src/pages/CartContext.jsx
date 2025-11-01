@@ -12,7 +12,7 @@ export const CartProvider = ({ children }) => {
     const [actprice,setActprice]=useState(0);
     const token=localStorage.getItem('token');
    const refreshCartCount = () => {
-     axios.get('http://localhost:3001/pages/cart', {
+     axios.get('https://yogoblastpanel-3.onrender.com/pages/cart', {
           headers: { Authorization: `Bearer ${token}` }})
       .then(response => {
         const Counts = parseInt(response.data.total_quantity, 10) || 0;
