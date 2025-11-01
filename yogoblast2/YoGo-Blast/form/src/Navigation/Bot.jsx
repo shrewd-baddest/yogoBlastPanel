@@ -19,7 +19,7 @@ const Bot = () => {
     setInput("");
 
     try {
-      const res = await axios.post("http://localhost:3001/pages/chat", { message: input });
+      const res = await axios.post("https://yogoblastpanel-3.onrender.com/pages/chat", { message: input });
        botReply = res.data.reply;
   newMessages = newMessages.map((item) =>
   item.text === "waiting..." ? { ...item, text: botReply } : item

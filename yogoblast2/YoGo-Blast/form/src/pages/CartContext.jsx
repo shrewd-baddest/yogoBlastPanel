@@ -1,7 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-
+ 
 const cartContext = createContext();
 
 export const CartProvider = ({ children }) => {
@@ -12,8 +11,7 @@ export const CartProvider = ({ children }) => {
     const [quantity,setQuantity]=useState(null);
     const [actprice,setActprice]=useState(0);
     const token=localStorage.getItem('token');
-    const navigate=useNavigate();
-  const refreshCartCount = () => {
+   const refreshCartCount = () => {
      axios.get('http://localhost:3001/pages/cart', {
           headers: { Authorization: `Bearer ${token}` }})
       .then(response => {
@@ -57,7 +55,7 @@ console.log('Payment Data:', paymentData);
       });
       if (orderStatusRes.data.success=== true) {    
         alert('Order placed successfully!');
-        navigate('/home')
+        navigate('/home');
         
       } else {
         alert('Order placement failed: ' + orderStatusRes.data.message);
