@@ -2,12 +2,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useGoogleLogin } from '@react-oauth/google';
+import { useCart } from './CartContext';
 
 const Loginn = () => {
   const [Emaili, setEmaili] = useState('');
   const [Code, setCode] = useState('');
   const [userInfo, setUserInfo] = useState(null);
-
+  const {refreshCartCount}=useCart;
   const buton = 'LOGIN';
   const url = 'https://yogoblastpanel-3.onrender.com/user/login';
 
@@ -70,6 +71,7 @@ useEffect(() => {
         if (Response.data.status =='success') {
           navigate('/home');
           localStorage.setItem('token',Response.data.token);
+          refreshCartCount();
 
         }
         else {

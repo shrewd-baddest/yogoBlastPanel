@@ -12,6 +12,11 @@ export const CartProvider = ({ children }) => {
     const [actprice,setActprice]=useState(0);
     const token=localStorage.getItem('token');
    const refreshCartCount = () => {
+
+       if (!token) {
+    setCount(0);
+    return;
+  }
      axios.get('https://yogoblastpanel-3.onrender.com/pages/cart', {
           headers: { Authorization: `Bearer ${token}` }})
       .then(response => {
@@ -41,8 +46,7 @@ export const CartProvider = ({ children }) => {
     phoneNumber: number,
     price: price,
   };
-console.log('Payment Data:', paymentData);
-  try {
+   try {
     // 1. Send payment request to backend
     const res = await axios.post('https://yogoblastpanel-3.onrender.com/pages/payment', paymentData, {
           headers: { Authorization: `Bearer ${token}` }});
@@ -55,8 +59,7 @@ console.log('Payment Data:', paymentData);
       });
       if (orderStatusRes.data.success=== true) {    
         alert('Order placed successfully!');
-        navigate('/home');
-        
+         
       } else {
         alert('Order placement failed: ' + orderStatusRes.data.message);
       }
