@@ -110,7 +110,7 @@ padding-bottom:5px;
     max-height:2rem;
     max-width:fit-content;
     right:2rem;
-    top:50%;
+    top:70%;
     position:fixed;
   }
   .msg:hover{
@@ -124,9 +124,12 @@ padding-bottom:5px;
     top:29%;
     position:fixed;
     font-weight:bolder;
+    background-color: rgb(240, 236, 236);
+    border-radius:50%;
   }
   .xmsg:hover{
     cursor:pointer;
+    background-color: rgb(230, 226, 226);
   }
  .company_info{
     background-color: rgb(241, 238, 238);

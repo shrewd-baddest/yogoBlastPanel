@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import Maps from '../pages/Maps';
+
 
 const Acct = () => {
   const navigate = useNavigate();
@@ -83,6 +85,7 @@ const Acct = () => {
       )}
       <button onClick={logOut} className='logOut'>Log Out</button>
     </div>
+    <Maps />
     </>
   )
 }
