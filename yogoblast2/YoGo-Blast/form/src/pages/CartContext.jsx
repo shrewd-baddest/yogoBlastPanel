@@ -68,6 +68,13 @@ export const CartProvider = ({ children }) => {
     }
   } catch (error) {
     console.log('Error during payment:', error);
+        if(error.message=="Request failed with status code 401" ){
+      alert('Unauthorized. Please log in again.');
+    }
+    else if( error.message=="Request failed with status code 500"){
+      alert('Session expired. Please log in again.');
+    }
+
    } finally {
     setNumber('2547'); // Reset phone number input
   }
