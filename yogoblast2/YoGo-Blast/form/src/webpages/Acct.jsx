@@ -1,13 +1,18 @@
-import React, { useEffect, useState } from 'react'
+import React, {  useEffect, useState } from 'react'
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import Maps from '../pages/Maps';
-
+import { Link, useNavigate } from 'react-router-dom';
+import { useCart } from '../pages/CartContext';
 
 const Acct = () => {
   const navigate = useNavigate();
   const [details,setdetails] = useState(null);
   const token=localStorage.getItem('token');
+  const {refreshCartCount}=useCart();
+ const [paymentCheck,setPaymentCheck]=useState('unpaid');
+ const [shipmentResults,setShipmentResults]=useState([]);
+
+
+
 
  
   useEffect(() => {
@@ -19,7 +24,7 @@ const Acct = () => {
 
    const dater = async () => {
     try {
-      const response = await fetch('https://yogoblastpanel-3.onrender.com/pages/Acct', {
+      const response = await fetch('http://localhost:3001/pages/Acct', {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -32,15 +37,80 @@ const Acct = () => {
   };
 
   dater();
-  }, [])
+}, [])
 
+const shipmentStatus=async()=>{
+switch(paymentCheck){
+  case 'unpaid':
+    {
+try {
+  const response = await fetch('http://localhost:3001/pages/Acct/unpaid', {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+const data = await response.json();
+    setShipmentResults(data);
+
+
+} catch (error) {
+  console.error("Error fetching account data:", error.message);
+}
+
+    }
+    break;
+    case 'tobeshipped':
+      {
+        try {
+          const response = await fetch('http://localhost:3001/pages/Acct/tobeshipped', {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+      const data = await response.json();
+          setShipmentResults(data);
+
+      } catch (error) {
+        console.error("Error fetching account data:", error.message);
+      }
+      }
+      break;
+      case 'shipped':
+        {
+          try {
+            const response = await fetch('http://localhost:3001/pages/Acct/complete', {
+              headers: {
+                Authorization: `Bearer ${token}`
+              }
+            });
+        const data = await response.json();
+            setShipmentResults(data);
+        } catch (error) {
+          console.error("Error fetching account data:", error.message);
+        }
+  }
+        break;
+        default:
+          console.error("Invalid payment check status");  
+          break;
+
+}
+ }
+
+ useEffect(() => {
+shipmentStatus();
+ }, [paymentCheck]);
+
+
+  
   const logOut = async () => {
     try {
-      const response = await axios.get('https://yogoblastpanel-3.onrender.com/user/logout' , {
+      const response = await axios.get('http://localhost:3001/user/logout' , {
           headers: { Authorization: `Bearer ${token}` }} );
       if (response.data.status === 'success') {
         alert('user successfully logged Out');
         navigate('/home');
+      refreshCartCount();
       } else {
         alert(response.data.message || JSON.stringify(response.data));
       }
@@ -53,18 +123,45 @@ const Acct = () => {
     <>
     <div className='Account' style={{ paddingLeft: '8%', paddingRight: '8%' }} >
       <h3>My Orders</h3>
-      <div className='orders'>
-        <p>Unpaid</p>
-        <p>To be shipped</p>
-        <p>Shipped</p>
-        <p>Reviews</p>
-      </div>
+      <div className='orders' style={{cursor: 'pointer', color: 'blue',textDecoration:'none'}}>
+        <p onClick={()=>{setPaymentCheck('unpaid'); }} style={paymentCheck === 'unpaid' ? { textDecoration: 'underline' } : {}}
+>Unpaid</p>
+        <p onClick={()=>{setPaymentCheck('tobeshipped'); }} style={paymentCheck==='tobeshipped' ? {textDecoration:'underline'} : {}}>To be shipped</p>
+        <p onClick={()=>{setPaymentCheck('shipped'); }} style={paymentCheck==='shipped' ? {textDecoration:'underline'} : {}}>Shipped</p>
+        {
+          shipmentResults.length>0 && shipmentResults.map((item,index)=>(
+<div> 
+<div className='shipHeader'>
+ <h4>Image:</h4>
+  <h4>Product Name:</h4>
+  <h4>Quantity:</h4>
+  <h4>Total Price:</h4>
+  <h4>Status:</h4>
+</div>
 
-      <h3>My Services</h3>
-      <div className='services'>
-        <p>FAQ</p>
-        <p>Customer Service</p>
-        <p>Settings</p>
+            <div key={index} className='shipment_item'>
+              <span>
+               
+                <img src={item.image_url} alt={item.productName} style={{width:'100px',height:'100px'}}/>
+              </span>
+              <span>
+                 <h5>{item.products_name}</h5>
+              </span>
+              <span>
+                 <h5>{item.quantity}</h5>
+              </span>
+              <span>
+                 <h5>{item.totalPrice}</h5>
+              </span>
+              <span>
+                 <h5>{item.statuz}</h5>
+              </span>
+
+            </div>
+            </div>
+        ))
+        }
+     
       </div>
       <h3>Your Details</h3>
       {details && (
@@ -85,9 +182,9 @@ const Acct = () => {
       )}
       <button onClick={logOut} className='logOut'>Log Out</button>
     </div>
-    <Maps />
     </>
   )
+
 }
 
 export default Acct

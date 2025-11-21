@@ -6,6 +6,7 @@ import pagesController from "../controllers/pagesController.js";
 import sessionController from '../controllers/sessionController.js';
 import callback from "../controllers/callback.js";
 import { Bot } from "../controllers/botConroller.js";
+import { unpaidProducts, toBeShippedProducts, completeShip } from "../controllers/productStatus.js";
 const { account, cart, cartDisplay,update,orders,payment } = sessionController;
 const {cartegory,search}=pagesController;
 const router= Router();
@@ -28,7 +29,8 @@ router.get('/callback',verifyToken,callback);
 router.post('/category',cartegory);
 router.post('/search',search);
 router.post("/chat",Bot);
-
-
+router.get("/unpaid", verifyToken, unpaidProducts);
+router.get("/tobeshipped", verifyToken, toBeShippedProducts);
+router.get("/complete", verifyToken, completeShip);
 
 export default router
