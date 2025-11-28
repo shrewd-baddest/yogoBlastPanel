@@ -2,7 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import {CartProvider} from './pages/CartContext.jsx'
 import  {GoogleOAuthProvider} from '@react-oauth/google'
-
+import './index.css'
 import App from './App.jsx'
 import Cart from './webpages/Cart.jsx'
 

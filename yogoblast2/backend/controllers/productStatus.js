@@ -4,7 +4,11 @@ import db from '../controllers/dbConnect.js';
 export const unpaidProducts = async (req, res) => {
     const userId = req.user.id;
   try {
-    const sql1=`SELECT * FROM  shoping_cart WHERE user_id=? `;
+    const sql1=`SELECT p.products_name, p.image_url, sc.quantity, p.price
+        FROM shoping_cart sc
+      INNER JOIN products p ON sc.product_id = p.products_id
+      WHERE  sc.user_id=? 
+`;
     const [rows] = await db.execute(sql1, [userId]);
     res.status(200).json(rows
     )}

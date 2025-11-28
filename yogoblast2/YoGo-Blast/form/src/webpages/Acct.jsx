@@ -2,6 +2,7 @@ import React, {  useEffect, useState } from 'react'
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../pages/CartContext';
+import { useRef } from 'react';
 
 const Acct = () => {
   const navigate = useNavigate();
@@ -10,8 +11,9 @@ const Acct = () => {
   const {refreshCartCount}=useCart();
  const [paymentCheck,setPaymentCheck]=useState('unpaid');
  const [shipmentResults,setShipmentResults]=useState([]);
+  const shipStatus=useRef(null);
 
-
+  
 
 
  
@@ -40,11 +42,12 @@ const Acct = () => {
 }, [])
 
 const shipmentStatus=async()=>{
+  console.log(token);
 switch(paymentCheck){
   case 'unpaid':
     {
 try {
-  const response = await fetch('http://localhost:3001/pages/Acct/unpaid', {
+  const response = await fetch('http://localhost:3001/pages/unpaid', {
     headers: {
       Authorization: `Bearer ${token}`
     }
@@ -62,12 +65,13 @@ const data = await response.json();
     case 'tobeshipped':
       {
         try {
-          const response = await fetch('http://localhost:3001/pages/Acct/tobeshipped', {
+          const response = await fetch('http://localhost:3001/pages/tobeshipped', {
             headers: {
               Authorization: `Bearer ${token}`
             }
           });
       const data = await response.json();
+      console.log(data);
           setShipmentResults(data);
 
       } catch (error) {
@@ -78,7 +82,7 @@ const data = await response.json();
       case 'shipped':
         {
           try {
-            const response = await fetch('http://localhost:3001/pages/Acct/complete', {
+            const response = await fetch('http://localhost:3001/pages/complete', {
               headers: {
                 Authorization: `Bearer ${token}`
               }
@@ -99,6 +103,7 @@ const data = await response.json();
 
  useEffect(() => {
 shipmentStatus();
+   
  }, [paymentCheck]);
 
 
@@ -123,44 +128,52 @@ shipmentStatus();
     <>
     <div className='Account' style={{ paddingLeft: '8%', paddingRight: '8%' }} >
       <h3>My Orders</h3>
-      <div className='orders' style={{cursor: 'pointer', color: 'blue',textDecoration:'none'}}>
-        <p onClick={()=>{setPaymentCheck('unpaid'); }} style={paymentCheck === 'unpaid' ? { textDecoration: 'underline' } : {}}
+      <div  style={{textDecoration:'none',display:'grid',gridTemplateColumns:'auto'}}>
+        <section className='orders'> 
+
+        <p onClick={()=>{setPaymentCheck('unpaid');  }} style={paymentCheck === 'unpaid' ? { textDecoration: 'underline' } : {}}
 >Unpaid</p>
-        <p onClick={()=>{setPaymentCheck('tobeshipped'); }} style={paymentCheck==='tobeshipped' ? {textDecoration:'underline'} : {}}>To be shipped</p>
-        <p onClick={()=>{setPaymentCheck('shipped'); }} style={paymentCheck==='shipped' ? {textDecoration:'underline'} : {}}>Shipped</p>
-        {
-          shipmentResults.length>0 && shipmentResults.map((item,index)=>(
-<div> 
-<div className='shipHeader'>
- <h4>Image:</h4>
-  <h4>Product Name:</h4>
-  <h4>Quantity:</h4>
-  <h4>Total Price:</h4>
-  <h4>Status:</h4>
-</div>
+        <p onClick={()=>{setPaymentCheck('tobeshipped');  }} style={paymentCheck==='tobeshipped' ? {textDecoration:'underline'} : {}}>To be shipped</p>
+        <p onClick={()=>{setPaymentCheck('shipped');   }} style={paymentCheck==='shipped' ? {textDecoration:'underline'} : {}}>Shipped</p>
 
-            <div key={index} className='shipment_item'>
-              <span>
-               
-                <img src={item.image_url} alt={item.productName} style={{width:'100px',height:'100px'}}/>
-              </span>
-              <span>
-                 <h5>{item.products_name}</h5>
-              </span>
-              <span>
-                 <h5>{item.quantity}</h5>
-              </span>
-              <span>
-                 <h5>{item.totalPrice}</h5>
-              </span>
-              <span>
-                 <h5>{item.statuz}</h5>
-              </span>
+                </section >
+ 
+        <section style={{width:'100%', border:'1px solid black'}}>
 
-            </div>
-            </div>
-        ))
-        }
+
+<table className="tables"  style={{width:'100%', height:'20rem'}} >
+  <thead className="bg-gray-100">
+    <tr width='100%'>
+      <th className="tableHead">Image</th>
+      <th className="tableHead">Product Name</th>
+      <th className="tableHead">Quantity</th>
+      <th className="tableHead">Total Price</th>
+      <th className="tableHead">Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    { shipmentResults.length>0 && shipmentResults.map((item,index)=>(
+      <tr key={index} className="transition hover:bg-gray-50">
+        <td className="px-4 py-2">    
+                      <img src={item.image_url} alt={item.productName} style={{width:'100px',height:'100px'}}/>
+</td>
+        <td className="px-4 py-2">{item.products_name}</td>
+        <td className="px-4 py-2">{item.quantity}</td>
+        <td className="flex items-center gap-2 px-4 py-2">
+           {paymentCheck=='unpaid'?item.price:item.totalPrice}
+        </td>
+        <td className="px-4 py-2">
+        {paymentCheck==='shipped' ? 'completed' : paymentCheck==='tobeshipped' ? 'paid' : 'unpaid'}
+        </td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+
+
+        </section>
+
+
      
       </div>
       <h3>Your Details</h3>
