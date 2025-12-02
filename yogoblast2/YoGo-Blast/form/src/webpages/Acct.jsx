@@ -26,7 +26,7 @@ const Acct = () => {
 
    const dater = async () => {
     try {
-      const response = await fetch('http://localhost:3001/pages/Acct', {
+      const response = await fetch('https://yogoblastpanel-3.onrender.com/pages/Acct', {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -47,7 +47,7 @@ switch(paymentCheck){
   case 'unpaid':
     {
 try {
-  const response = await fetch('http://localhost:3001/pages/unpaid', {
+  const response = await fetch('https://yogoblastpanel-3.onrender.com/pages/unpaid', {
     headers: {
       Authorization: `Bearer ${token}`
     }
@@ -65,7 +65,7 @@ const data = await response.json();
     case 'tobeshipped':
       {
         try {
-          const response = await fetch('http://localhost:3001/pages/tobeshipped', {
+          const response = await fetch('https://yogoblastpanel-3.onrender.com/pages/tobeshipped', {
             headers: {
               Authorization: `Bearer ${token}`
             }
@@ -82,7 +82,7 @@ const data = await response.json();
       case 'shipped':
         {
           try {
-            const response = await fetch('http://localhost:3001/pages/complete', {
+            const response = await fetch('https://yogoblastpanel-3.onrender.com/pages/complete', {
               headers: {
                 Authorization: `Bearer ${token}`
               }
@@ -110,7 +110,7 @@ shipmentStatus();
   
   const logOut = async () => {
     try {
-      const response = await axios.get('http://localhost:3001/user/logout' , {
+      const response = await axios.get('https://yogoblastpanel-3.onrender.com/user/logout' , {
           headers: { Authorization: `Bearer ${token}` }} );
       if (response.data.status === 'success') {
         alert('user successfully logged Out');
