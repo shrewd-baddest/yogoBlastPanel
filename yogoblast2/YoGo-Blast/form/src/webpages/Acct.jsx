@@ -159,7 +159,7 @@ shipmentStatus();
 </td>
         <td className="px-4 py-2">{item.products_name}</td>
         <td className="px-4 py-2">{item.quantity}</td>
-        <td className="flex items-center gap-2 px-4 py-2">
+        <td className=" px-4 py-2">
            {paymentCheck=='unpaid'?item.price:item.totalPrice}
         </td>
         <td className="px-4 py-2">
