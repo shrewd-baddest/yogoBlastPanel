@@ -646,11 +646,11 @@ font-weight: bold;
 }
 .tables {
   width: 100%;
-  min-width: 100%;
-  margin:auto;
-  table-layout: fixed;
+   margin:auto;
+  /* table-layout: fixed; */
   border-collapse: collapse;
   margin-top: 20px;
+   overflow-y: auto;
 }
 
 .tables th, .tables td {
@@ -663,4 +663,22 @@ font-weight: bold;
   font-weight: bold;
   color: #374151;
 }
+ 
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+thead, tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed; 
+}
+
+tbody {
+  display: block;      
+  max-height: 200px;      
+  overflow-y: auto;      
+}
+
 /* ACCOUNT */

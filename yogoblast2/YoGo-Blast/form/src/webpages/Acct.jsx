@@ -138,10 +138,10 @@ shipmentStatus();
 
                 </section >
  
-        <section style={{width:'100%', border:'1px solid black'}}>
+        <section style={{border:'1px solid black'}} >
 
 
-<table className="tables"  style={{width:'100%', height:'20rem'}} >
+<table className="tables">
   <thead className="bg-gray-100">
     <tr width='100%'>
       <th className="tableHead">Image</th>
@@ -151,7 +151,7 @@ shipmentStatus();
       <th className="tableHead">Status</th>
     </tr>
   </thead>
-  <tbody>
+  <tbody >
     { shipmentResults.length>0 && shipmentResults.map((item,index)=>(
       <tr key={index} className="transition hover:bg-gray-50">
         <td className="px-4 py-2">    
