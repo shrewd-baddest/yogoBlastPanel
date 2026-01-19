@@ -17,9 +17,9 @@ products.products_id,
 FROM products
 INNER JOIN category 
   ON products.category_id = category.category_id
-WHERE category.category_name =?`;
-    const [categoryRows] = await db.execute(sql, [categ]);
-    res.status(200).json(categoryRows);
+WHERE category.category_name = $1`;
+    const categoryRows = await db.execute(sql, [categ]);
+    res.status(200).json(categoryRows.rows);
 
 }
 catch(error){
@@ -42,13 +42,13 @@ products.products_id,
     FROM products
     INNER JOIN category
     ON products.category_id=category.category_id
-    where products.products_name LIKE ? OR
-    products.weight_ml LIKE ? OR products.price LIKE ?
-    OR category.category_name LIKE ?`;
+    where products.products_name LIKE $1 OR
+    products.weight_ml LIKE $2 OR products.price LIKE $3
+    OR category.category_name LIKE $4`;
 const like=`%${searchTerm}%`;
-const [row]=await db.execute(sql,[like,like,like,like]);
-console.log(row);
-      res.status(201).json(row);
+const results=await db.execute(sql,[like,like,like,like]);
+console.log(results.rows);
+      res.status(201).json(results.rows);
 }
 catch(error){
   console.error("Error handling cart:", error);
@@ -84,10 +84,10 @@ let date=null;
         if ( item['Name'] == 'TransactionDate')  date =  item['Value'];
         if ( item['Name'] == 'PhoneNumber')  phone =  item['Value'];
   }); 
-  const user=`SELECT * FROM mpesa_request WHERE checkout_id=? LIMIT 1`;
-  const [row]=await db.execute(sql,[checkId]);
-   const user_id=row[0].user
-const  insertOrderSql = "INSERT INTO orders (user_id,phoneNumber,receipt,total_price,order_date,statuz) VALUES (?, ?, ?, ?, ?, ?)";
+  const user=`SELECT * FROM mpesa_request WHERE checkout_id=$1 LIMIT 1`;
+  const results=await db.execute(user,[checkId]);
+   const user_id=results.rows[0].user
+const  insertOrderSql = "INSERT INTO orders (user_id,phoneNumber,receipt,total_price,order_date,statuz) VALUES ($1, $2, $3, $4, $5, $6)";
   await db.execute(insertOrderSql, [user_id, phone, receipt, amount, date, resultCode]);
   return res.status(201).json({status: "success", message: "Order made successfully"});
 } else {

@@ -7,7 +7,8 @@ dotenv.config();
 const account = async (req, res) => {
   try {
     const userId = req.user.id;
-    const [rows] = await db.execute(`SELECT * FROM person WHERE ID = ?`, [userId]);
+    const results = await db.execute(`SELECT * FROM person WHERE ID = $1`, [userId]);
+    const rows = results.rows;
     
     if (rows.length === 0) {
       return res.status(404).json({ message: "User not found" });
@@ -26,11 +27,11 @@ const cart = async (req, res) => {
     const userId = req.user.id;
      // If no data is sent, return total quantity in cart (GET-like behavior)
     if (!req.body || Object.keys(req.body).length === 0) {
-      const [rows] = await db.execute(
-        `SELECT SUM(quantity) AS total_quantity FROM shoping_cart WHERE user_id = ?`,
+      const results = await db.execute(
+        `SELECT SUM(quantity) AS total_quantity FROM shoping_cart WHERE user_id = $1`,
         [userId]
       );
-      res.status(200).json(rows[0]);
+      res.status(200).json(results.rows[0]);
     } else {
       // Otherwise, assume it's a POST to insert item to cart
       const { Quantity, productId } = req.body;
@@ -39,8 +40,8 @@ const cart = async (req, res) => {
         return res.status(400).json({ message: "Missing Quantity or Product ID" });
       }
 
-      const sql = `INSERT INTO shoping_cart (product_id, user_id, quantity) VALUES (?, ?, ?)`;
-      const [result] = await db.execute(sql, [productId, userId, Quantity]);
+      const sql = `INSERT INTO shoping_cart (product_id, user_id, quantity) VALUES ($1, $2, $3)`;
+      const results = await db.execute(sql, [productId, userId, Quantity]);
       res.status(201).json({status:'success',message: "Item added to cart successfully" });
     }
   } catch (error) {
@@ -61,10 +62,10 @@ const cartDisplay = async (req, res) => {
         shoping_cart.quantity
       FROM shoping_cart
       INNER JOIN products ON shoping_cart.product_id = products.products_id
-      WHERE shoping_cart.user_id = ?
+      WHERE shoping_cart.user_id = $1
     `;
-    const [rows] = await db.execute(sql, [userId]);
-    res.status(200).json(rows);
+    const results = await db.execute(sql, [userId]);
+    res.status(200).json(results.rows);
   } catch (error) {
     console.error("Error fetching cart items:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -81,10 +82,10 @@ const update = async (req, res) => {
     }
 
     if (deleteQuantity > 1) {
-      const sql = `UPDATE shoping_cart SET quantity = ? WHERE product_id = ? AND user_id = ?`;
+      const sql = `UPDATE shoping_cart SET quantity = $1 WHERE product_id = $2 AND user_id = $3`;
       await db.execute(sql, [deleteQuantity, deleteId, userId]);
     } else {
-      const sql = `DELETE FROM shoping_cart WHERE product_id = ? AND user_id = ? LIMIT 1`;
+      const sql = `DELETE FROM shoping_cart WHERE product_id = $1 AND user_id = $2 LIMIT 1`;
       await db.execute(sql, [deleteId, userId]);
     }
 
@@ -99,16 +100,16 @@ const orders=async(req,res)=>{
   const user=req.user.id;
 const {product_id,quantity,price}=req.body;
  try{
-const sql=`SELECT * FROM ORDERS WHERE user_id = ? ORDER BY order_date DESC LIMIT 1`;
+const sql=`SELECT * FROM ORDERS WHERE user_id = $1 ORDER BY order_date DESC LIMIT 1`;
    const [result]=await db.execute(sql,[user]);
 
    if (result.length > 0 && result[0].statuz == 0) {
 
-    const sql2=`INSERT INTO ORDER_ITEMS(order_id, product_id,price, quantity) VALUES (?, ?, ?, ?)`;
+    const sql2=`INSERT INTO ORDER_ITEMS(order_id, product_id,price, quantity) VALUES ($1, $2, $3, $4)`;
         await db.execute(sql2,[result[0].id,product_id,quantity,price]);
               res.status(201).json({status: "success", message: "Order items added successfully"});
 
-              const noticeSql = `INSERT INTO notifications (type, message) VALUES (?, ?)`;
+              const noticeSql = `INSERT INTO notifications (type, message) VALUES ($1, $2)`;
               const noticeType = 'order';
               const noticeMessage = `New item has been ordered for #${product_id}.`;
               await db.execute(noticeSql, [noticeType, noticeMessage]);
@@ -179,7 +180,7 @@ const payment = async (req, res) => {
     // 4️ Insert into DB
     const insertSql = `
       INSERT INTO mpesa_request (checkout_id, user_id, amount, created_at, productId)
-      VALUES (?, ?, ?, NOW(), ?)
+      VALUES ($1, $2, $3, NOW(), $4)
     `;
     await db.execute(insertSql, [checkoutId, userId, price, productId]);
 

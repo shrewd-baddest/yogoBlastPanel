@@ -9,13 +9,13 @@ import jwt from "jsonwebtoken";
 
   try {
     // Check if user exists
-    const [rows] = await db.execute('SELECT * FROM person WHERE email = ?', [Emaili]);
-    if (rows.length === 0) {
+    const results= await db.execute('SELECT * FROM person WHERE email = $1', [Emaili]);
+    if (results.rows.length === 0) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
      
- const user = rows[0];
+ const user = results.rows[0];
      // Compare password
     const isMatch = await bcrypt.compare(Code, user.passcode);
     if (!isMatch) {

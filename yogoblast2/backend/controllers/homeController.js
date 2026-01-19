@@ -12,13 +12,13 @@ products.products_id,
 FROM products
 INNER JOIN category 
   ON products.category_id = category.category_id
-WHERE category.category_name =?`;
-    const [categoryRows] = await db.execute(sql, [category]);
+WHERE category.category_name = $1`;
+    const categoryRows = await db.execute(sql, [category]);
 
     const sql2 = `SELECT * FROM products LIMIT 10`;
-    const [limitedRows] = await db.execute(sql2);
+    const limitedRows = await db.execute(sql2);
     
-   res.status(200).json([categoryRows, limitedRows]);
+   res.status(200).json([categoryRows.rows, limitedRows.rows]);
      
   } catch (error) {
     console.error("Error fetching products:", error);

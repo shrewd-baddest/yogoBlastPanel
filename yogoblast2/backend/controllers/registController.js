@@ -12,7 +12,7 @@ const { ID, fName, sName, pCode, email } = req.body;
     }
     try {
         const sql = `INSERT INTO person (ID,firstname,secondName,passcode,email)
-                     VALUES (?, ?, ?, ?, ?);`;
+                     VALUES ($1, $2, $3, $4, $5);`;
         const hashedPassword = await bcrypt.hash(pCode, 10);
         const params = [ID, fName, sName, hashedPassword, email];
         await db.query(sql, params);

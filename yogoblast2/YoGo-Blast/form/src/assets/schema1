@@ -1,137 +1,184 @@
-CREATE TABLE person(
-ID int PRIMARY KEY,
-firstname VARCHAR(255),
-secondName VARCHAR(255),
-passcode VARCHAR(255),
-email VARCHAR(255)
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
+BEGIN;
+-- Enable UUID generation (safe inside transaction)
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+-- PERSON
+CREATE TABLE person (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  firstname VARCHAR(255),
+  secondname VARCHAR(255),
+  passcode VARCHAR(255),
+  email VARCHAR(255),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-CREATE TABLE category(
-    category_id INT AUTO_INCREMENT  PRIMARY KEY,
-    category_name  VARCHAR(255),
-    description VARCHAR(255));
-
+-- CATEGORY
+CREATE TABLE category (
+  category_id INT PRIMARY KEY,
+  category_name VARCHAR(255),
+  description VARCHAR(255)
+);
+-- SUPPLIERS
 CREATE TABLE suppliers (
-  supplier_id INT AUTO_INCREMENT PRIMARY KEY,
+  supplier_id INT PRIMARY KEY,
   name VARCHAR(100),
   contact_info VARCHAR(255),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-CREATE TABLE supplier_items(
-  supplier_item_id INT AUTO_INCREMENT PRIMARY KEY,
-  suplier_id INT NOT NULL,
+-- SUPPLIER ITEMS
+CREATE TABLE supplier_items (
+  supplier_item_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  supplier_id INT NOT NULL,
   category_id INT NOT NULL,
-weight_ml INT,
-price FLOAT(10,2),
+  weight_ml INTEGER,
+  price NUMERIC(10, 2),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (suplier_id) REFERENCES suppliers(supplier_id),
-  FOREIGN KEY (category_id) REFERENCES category(category_id)  
+  stock INTEGER,
+  FOREIGN KEY (supplier_id) REFERENCES suppliers(supplier_id),
+  FOREIGN KEY (category_id) REFERENCES category(category_id)
 );
-CREATE TABLE products(
-   products_id INT AUTO_INCREMENT  PRIMARY KEY,
- products_name  VARCHAR(255),
-    weight_ml VARCHAR(255),
-    supplier_item_id INT NOT NULL,
-    price FLOAT (10,2), 
-    stock INT(10),
-    image_url VARCHAR(1000),
-      category_id INT,  -- Add this line to define the FK column
-FOREIGN KEY(categories_id) REFERENCES category(category_id));
-FOREIGN KEY (supplyer_item_id) REFERENCES supplier_items(supplyer_item_id),
-
-CREATE TABLE ORDERS(
-  id int AUTO_INCREMENT primary KEY,
-   user_id int,
-   MID varchar(255,
-   total_price decimal(10,2),
-    order_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-    statuz varchar(100) DEFAULT 'pending',
-      CONSTRAINT chk_statuz CHECK (statuz IN ('pending', 'paid', 'cancelled', 'refunded')),
-    FOREIGN KEY(user_id) REFERENCES person(id),
-    FOREIGN KEY(MID) REFERENCES mpesa_request(checkout_id)
+-- PRODUCTS
+CREATE TABLE products (
+  products_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  products_name VARCHAR(255),
+  weight_ml VARCHAR(255),
+  supplier_item_id UUID NOT NULL,
+  price NUMERIC(10, 2),
+  stock INTEGER,
+  image_url VARCHAR(1000),
+  category_id INT,
+  FOREIGN KEY (supplier_item_id) REFERENCES supplier_items(supplier_item_id),
+  FOREIGN KEY (category_id) REFERENCES category(category_id)
 );
-
-CREATE TABLE ORDER_ITEMS( 
-     id int AUTO_INCREMENT primary KEY,  
- order_id int, 
-   product_id int, 
-   price decimal(10,2), 
-    quantity int(255),  
-     FOREIGN KEY(product_id) REFERENCES products(products_id),   
- FOREIGN KEY(order_id) REFERENCES ORDERS(id));
-
- CREATE TABLE product_reviews(
-  id int AUTO_INCREMENT primary KEY,
-  product_id int ,
-   user_id int,
-   rating int CHECK(rating>=1 AND rating<=5),
-   comments VARCHAR(255),
-    quantity int,
-    FOREIGN KEY(product_id) REFERENCES products(products_id),
-    FOREIGN KEY(user_id) REFERENCES person(id)
+-- MPESA REQUEST
+CREATE TABLE mpesa_request (
+  checkout_id VARCHAR(255) PRIMARY KEY,
+  user_id UUID,
+  amount NUMERIC(10, 2),
+  product_id UUID,
+  status VARCHAR(50) DEFAULT 'pending' CHECK (status IN ('pending', 'paid', 'failed')),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES person(id),
+  FOREIGN KEY (product_id) REFERENCES products(products_id)
 );
-CREATE TABLE shoping_cart(
-  id int AUTO_INCREMENT primary KEY,
-  product_id int ,
-   user_id int,
-    quantity int,
-    FOREIGN KEY(product_id) REFERENCES products(products_id),
-    FOREIGN KEY(user_id) REFERENCES person(id)
+-- ORDERS
+CREATE TABLE orders (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID,
+  mid VARCHAR(255),
+  total_price NUMERIC(10, 2),
+  order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  status VARCHAR(20) DEFAULT 'pending' CHECK (
+    status IN ('pending', 'paid', 'cancelled', 'refunded')
+  ),
+  FOREIGN KEY (user_id) REFERENCES person(id),
+  FOREIGN KEY (mid) REFERENCES mpesa_request(checkout_id)
 );
+-- ORDER ITEMS
+CREATE TABLE order_items (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  order_id UUID,
+  product_id UUID,
+  price NUMERIC(10, 2),
+  quantity INTEGER,
+  FOREIGN KEY (order_id) REFERENCES orders(id),
+  FOREIGN KEY (product_id) REFERENCES products(products_id)
+);
+-- PRODUCT REVIEWS
+CREATE TABLE product_reviews (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  product_id UUID,
+  user_id UUID,
+  rating INTEGER CHECK (
+    rating BETWEEN 1 AND 5
+  ),
+  comments VARCHAR(255),
+  quantity INTEGER,
+  FOREIGN KEY (product_id) REFERENCES products(products_id),
+  FOREIGN KEY (user_id) REFERENCES person(id)
+);
+-- SHOPPING CART
+CREATE TABLE shopping_cart (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  product_id UUID,
+  user_id UUID,
+  quantity INTEGER,
+  FOREIGN KEY (product_id) REFERENCES products(products_id),
+  FOREIGN KEY (user_id) REFERENCES person(id)
+);
+-- USERS
 CREATE TABLE users (
-  id INT AUTO_INCREMENT PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name VARCHAR(100),
   email VARCHAR(100) UNIQUE,
   password VARCHAR(255),
-  passPort VARCHAR(255),
-  number int,
-  amount decimal(10,2);
-  status ENUM('paid','unpaid') DEFAULT 'unpaid',
-  role ENUM('admin', 'manager', 'seller') DEFAULT 'seller',
+  passport VARCHAR(255),
+  number INTEGER,
+  amount NUMERIC(10, 2),
+  status VARCHAR(20) DEFAULT 'unpaid' CHECK (status IN ('paid', 'unpaid')),
+  role VARCHAR(20) DEFAULT 'seller' CHECK (role IN ('admin', 'manager', 'seller')),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- SALES
 CREATE TABLE sales (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  user_id INT,
-  total DECIMAL(10,2),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID,
+  total NUMERIC(10, 2),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id)
 );
+-- SALE ITEMS
 CREATE TABLE sale_items (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  order_id INT,
-  sale_id INT,
-   quantity INT,
-  price DECIMAL(10,2),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  sale_id UUID,
+  order_item_id UUID,
+  product_id UUID,
+  quantity INTEGER,
+  price NUMERIC(10, 2),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  product_id INT
-  FOREIGN KEY (product_id) REFERENCES products(products_id),
-  FOREIGN KEY (order_id) REFERENCES ORDER_ITEMS(id),
   FOREIGN KEY (sale_id) REFERENCES sales(id),
- );
+  FOREIGN KEY (order_item_id) REFERENCES order_items(id),
+  FOREIGN KEY (product_id) REFERENCES products(products_id)
+);
+-- NOTIFICATIONS
 CREATE TABLE notifications (
-  id INT AUTO_INCREMENT PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   type VARCHAR(100),
   message VARCHAR(255),
   is_read BOOLEAN DEFAULT FALSE,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- SETTINGS
 CREATE TABLE settings (
-  user_id INT PRIMARY KEY,
+  user_id UUID PRIMARY KEY,
   sound VARCHAR(10) DEFAULT 'on',
   language VARCHAR(50) DEFAULT 'en',
   theme VARCHAR(50) DEFAULT 'light',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id)
 );
-CREATE TABLE mpesa_request(
-  checkout_id VARCHAR(255) PRIMARY KEY,
-  user_id INT,
-  amount DECIMAL(10,2),
-  productId INT,
-  status VARCHAR(255) DEFAULT 'pending',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES person(ID),
-  FOREIGN KEY (product_id) REFERENCES products(products_id)
-);
+-- TRIGGERS
+CREATE OR REPLACE FUNCTION insert_into_notification_fn() RETURNS TRIGGER AS $$ BEGIN
+INSERT INTO notifications (type, message)
+VALUES (
+    'order',
+    'Product #' || NEW.product_id || ' has been ordered.'
+  );
+RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+CREATE TRIGGER insert_into_notification
+AFTER
+INSERT ON order_items FOR EACH ROW EXECUTE FUNCTION insert_into_notification_fn();
+CREATE OR REPLACE FUNCTION insert_into_order_items_fn() RETURNS TRIGGER AS $$ BEGIN
+INSERT INTO order_items (order_id, product_id, price)
+SELECT NEW.id,
+  m.product_id,
+  NEW.total_price
+FROM mpesa_request m
+WHERE m.checkout_id = NEW.mid;
+RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+CREATE TRIGGER insert_into_order_items
+AFTER
+INSERT ON orders FOR EACH ROW EXECUTE FUNCTION insert_into_order_items_fn();
+COMMIT;

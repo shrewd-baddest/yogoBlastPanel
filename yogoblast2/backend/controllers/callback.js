@@ -27,24 +27,24 @@ const callback = async (req, res) => {
         };
 
         // Match payment record
-        const [rows] = await db.execute(
-          `SELECT user_id, amount, checkout_id FROM mpesa_request WHERE checkout_id = ?`,
+        const results = await db.execute(
+          `SELECT user_id, amount, checkout_id FROM mpesa_request WHERE checkout_id = $1`,
           [CheckoutRequestID]
         );
-        if (!rows.length) {
+        if (!results.rows.length) {
           return res.status(404).json({ status: "error", message: "No matching payment request found." });
         }
 
-        const { user_id, checkout_id, amount } = rows[0];
+        const { user_id, checkout_id, amount } = results.rows[0];
           await db.execute(
-          `UPDATE mpesa_request SET status='paid' WHERE checkout_id=?`,
+          `UPDATE mpesa_request SET status='paid' WHERE checkout_id=$1`,
           [checkout_id]
         );
 
 
         // Create order
         await db.execute(
-          `INSERT INTO orders (user_id, total_price, MID) VALUES (?, ?, ?)`,
+          `INSERT INTO orders (user_id, total_price, MID) VALUES ($1, $2, $3)`,
           [user_id, amount, checkout_id]
         );
 
@@ -65,15 +65,15 @@ const callback = async (req, res) => {
       const userId = req.user.id;
 
 
-      const [rows] = await db.execute(
-        `SELECT * FROM mpesa_request WHERE user_id = ? AND status='paid' ORDER BY created_at DESC LIMIT 1`,
+      const results = await db.execute(
+        `SELECT * FROM mpesa_request WHERE user_id = $1 AND status='paid' ORDER BY created_at DESC LIMIT 1`,
         [userId]
       );
 
-      if (!rows.length)
+      if (!results.rows.length)
         return res.status(404).json({ success: false, message: "No orders found" });
 
-      res.status(200).json({ success: true, order: rows[0] });
+      res.status(200).json({ success: true, order: results.rows[0] });
     }
   } catch (error) {
     console.error("Error processing callback:", error);

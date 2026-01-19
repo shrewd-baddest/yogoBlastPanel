@@ -36,10 +36,11 @@ const intent = intentRaw.split(/\s+/)[0] || "";
     let content = "";
 
      if (intent === "product_search") {
-      const [products] = await db.query(
+      const products = await db.query(
         "SELECT products_name, weight_ml, price, stock FROM products"
       );
-      content = await getAIResponse(message, products);
+      const results= products.rows
+      content = await getAIResponse(message, results);
       reply = { category: "product_search", content };
     } 
     else if (intent === "navigation") {

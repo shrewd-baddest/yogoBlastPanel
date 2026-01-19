@@ -14,10 +14,10 @@ products.products_id,
 FROM products
 INNER JOIN category 
   ON products.category_id = category.category_id
-WHERE products.products_id=?`;
-    const [store]=await db.execute(sql,[product_id]);
-    res.status(201).json(store);
-    console.log(store);
+WHERE products.products_id=$1`;
+    const store=await db.execute(sql,[product_id]);
+    res.status(201).json(store.rows);
+    console.log(store.rows);
 } catch (error) {
      console.error("Error fetching products:", error);
        res.status(500).json({ message: "Internal server error" });
