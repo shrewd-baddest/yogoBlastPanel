@@ -18,7 +18,7 @@ FROM products
 INNER JOIN category 
   ON products.category_id = category.category_id
 WHERE category.category_name = $1`;
-    const categoryRows = await db.execute(sql, [categ]);
+    const categoryRows = await db.query(sql, [categ]);
     res.status(200).json(categoryRows.rows);
 
 }
@@ -46,7 +46,7 @@ products.products_id,
     products.weight_ml LIKE $2 OR products.price LIKE $3
     OR category.category_name LIKE $4`;
 const like=`%${searchTerm}%`;
-const results=await db.execute(sql,[like,like,like,like]);
+const results=await db.query(sql,[like,like,like,like]);
 console.log(results.rows);
       res.status(201).json(results.rows);
 }
@@ -85,10 +85,10 @@ let date=null;
         if ( item['Name'] == 'PhoneNumber')  phone =  item['Value'];
   }); 
   const user=`SELECT * FROM mpesa_request WHERE checkout_id=$1 LIMIT 1`;
-  const results=await db.execute(user,[checkId]);
+  const results=await db.query(user,[checkId]);
    const user_id=results.rows[0].user
 const  insertOrderSql = "INSERT INTO orders (user_id,phoneNumber,receipt,total_price,order_date,statuz) VALUES ($1, $2, $3, $4, $5, $6)";
-  await db.execute(insertOrderSql, [user_id, phone, receipt, amount, date, resultCode]);
+  await db.query(insertOrderSql, [user_id, phone, receipt, amount, date, resultCode]);
   return res.status(201).json({status: "success", message: "Order made successfully"});
 } else {
   return res.status(400).json({status: "error", message: resultDesc});

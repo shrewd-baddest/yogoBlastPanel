@@ -9,7 +9,7 @@ import jwt from "jsonwebtoken";
 
   try {
     // Check if user exists
-    const results= await db.execute('SELECT * FROM person WHERE email = $1', [Emaili]);
+    const results= await db.query('SELECT * FROM person WHERE email = $1', [Emaili]);
     if (results.rows.length === 0) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }

@@ -13,10 +13,10 @@ FROM products
 INNER JOIN category 
   ON products.category_id = category.category_id
 WHERE category.category_name = $1`;
-    const categoryRows = await db.execute(sql, [category]);
+    const categoryRows = await db.query(sql, [category]);
 
     const sql2 = `SELECT * FROM products LIMIT 10`;
-    const limitedRows = await db.execute(sql2);
+    const limitedRows = await db.query(sql2);
     
    res.status(200).json([categoryRows.rows, limitedRows.rows]);
      

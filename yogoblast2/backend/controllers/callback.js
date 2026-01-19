@@ -27,7 +27,7 @@ const callback = async (req, res) => {
         };
 
         // Match payment record
-        const results = await db.execute(
+        const results = await db.query(
           `SELECT user_id, amount, checkout_id FROM mpesa_request WHERE checkout_id = $1`,
           [CheckoutRequestID]
         );
@@ -36,14 +36,14 @@ const callback = async (req, res) => {
         }
 
         const { user_id, checkout_id, amount } = results.rows[0];
-          await db.execute(
+          await db.query(
           `UPDATE mpesa_request SET status='paid' WHERE checkout_id=$1`,
           [checkout_id]
         );
 
 
         // Create order
-        await db.execute(
+        await db.query(
           `INSERT INTO orders (user_id, total_price, MID) VALUES ($1, $2, $3)`,
           [user_id, amount, checkout_id]
         );
@@ -65,7 +65,7 @@ const callback = async (req, res) => {
       const userId = req.user.id;
 
 
-      const results = await db.execute(
+      const results = await db.query(
         `SELECT * FROM mpesa_request WHERE user_id = $1 AND status='paid' ORDER BY created_at DESC LIMIT 1`,
         [userId]
       );
