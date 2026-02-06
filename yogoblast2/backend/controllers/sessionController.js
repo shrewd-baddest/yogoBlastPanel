@@ -24,31 +24,48 @@ const account = async (req, res) => {
 
 const cart = async (req, res) => {
   try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
     const userId = req.user.id;
-     // If no data is sent, return total quantity in cart (GET-like behavior)
-    if (!req.body || Object.keys(req.body).length === 0) {
-      const results = await db.query(
-        `SELECT SUM(quantity) AS total_quantity FROM shoping_cart WHERE user_id = $1`,
+
+     if (!req.body || Object.keys(req.body).length === 0) {
+      const result = await db.query(
+        `SELECT COALESCE(SUM(quantity), 0) AS total_quantity 
+         FROM shoping_cart 
+         WHERE user_id = $1`,
         [userId]
       );
-      res.status(200).json(results.rows[0]);
-    } else {
-      // Otherwise, assume it's a POST to insert item to cart
-      const { Quantity, productId } = req.body;
 
-      if (!Quantity || !productId) {
-        return res.status(400).json({ message: "Missing Quantity or Product ID" });
-      }
-
-      const sql = `INSERT INTO shoping_cart (product_id, user_id, quantity) VALUES ($1, $2, $3)`;
-      const results = await db.query(sql, [productId, userId, Quantity]);
-      res.status(201).json({status:'success',message: "Item added to cart successfully" });
+      return res.status(200).json(result.rows[0]);
     }
+
+     const { quantity, productId } = req.body;
+
+    if (!quantity || !productId) {
+      return res.status(400).json({
+        message: "Missing quantity or productId",
+      });
+    }
+
+    await db.query(
+      `INSERT INTO shoping_cart (product_id, user_id, quantity)
+       VALUES ($1, $2, $3)`,
+      [productId, userId, quantity]
+    );
+
+    res.status(201).json({
+      status: "success",
+      message: "Item added to cart successfully",
+    });
+
   } catch (error) {
-    console.error("Error handling cart:", error);
+    console.error("❌ Error handling cart:", error.message);
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 const cartDisplay = async (req, res) => {
   try {
