@@ -33,7 +33,7 @@ const cart = async (req, res) => {
      if (!req.body || Object.keys(req.body).length === 0) {
       const result = await db.query(
         `SELECT COALESCE(SUM(quantity), 0) AS total_quantity 
-         FROM shoping_cart 
+         FROM shopping_cart 
          WHERE user_id = $1`,
         [userId]
       );
@@ -50,7 +50,7 @@ const cart = async (req, res) => {
     }
 
     await db.query(
-      `INSERT INTO shoping_cart (product_id, user_id, quantity)
+      `INSERT INTO shopping_cart (product_id, user_id, quantity)
        VALUES ($1, $2, $3)`,
       [productId, userId, quantity]
     );
