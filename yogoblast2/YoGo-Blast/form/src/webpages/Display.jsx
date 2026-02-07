@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import axios from "axios";
-import { useLoaderData, Link } from "react-router-dom";
+import { useLoaderData, Link, Navigate, useNavigate } from "react-router-dom";
 import { useCart } from "../pages/CartContext";
 import gsap from "gsap";
 
@@ -22,6 +22,7 @@ const Display = () => {
   const [choices, setChoices] = useState([]);
   const newImages = choices?.[0] || [];
   const imagesLike = choices?.[1] || [];
+  const navigate = useNavigate();
 
   const blurs = useRef();
   const pay = useRef();
@@ -101,9 +102,13 @@ const Display = () => {
         alert(response.data.message);
       }
     } catch (error) {
-      // error.message == "Request failed with status code 401"   ? alert("please login in first to continue with cart")
-      //   : console.error(error.message);
-      console.error(error.message);
+      if (error.message == "Request failed with status code 401") {
+        alert("please login in first to continue with cart");
+        navigate("/login");
+      } else {
+        console.error(error.message);
+        console.error(error.message);
+      }
     }
   };
   const Buy = (item) => {
