@@ -82,6 +82,7 @@ const Display = () => {
       productId,
     };
     console.log(cartData.productId);
+    console.log(token);
     try {
       const response = await axios.post(
         "https://yogoblastpanel-3.onrender.com/pages/cart",
@@ -100,9 +101,9 @@ const Display = () => {
         alert(response.data.message);
       }
     } catch (error) {
-      error.message == "Request failed with status code 401"
-        ? alert("please login in first to continue with cart")
-        : console.error(error.message);
+      // error.message == "Request failed with status code 401"   ? alert("please login in first to continue with cart")
+      //   : console.error(error.message);
+      console.error(error.message);
     }
   };
   const Buy = (item) => {

@@ -19,7 +19,7 @@ router.get('/home',home);
 router.post('/display',display);
 router.get('/Acct',verifyToken,account);
 router.get('/cart',verifyToken,cart); 
-router.post('/cart',verifyToken,cart);
+router.post('/cart',cart);
 router.post('/payment',verifyToken,payment);
 router.get('/cartDisplay',verifyToken,cartDisplay); 
 router.post('/update',verifyToken,update);

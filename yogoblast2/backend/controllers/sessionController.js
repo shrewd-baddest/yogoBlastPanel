@@ -25,7 +25,7 @@ const account = async (req, res) => {
 const cart = async (req, res) => {
   try {
     if (!req.user || !req.user.id) {
-      return res.status(401).json({ message: "Unauthorized" });
+       return res.status(401).json({ message: "Unauthorized" });
     }
 
     const userId = req.user.id;
@@ -61,7 +61,7 @@ const cart = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ Error handling cart:", error.message);
+    console.error("Error handling cart:", error.message);
     res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -76,10 +76,10 @@ const cartDisplay = async (req, res) => {
         products.image_url,
         products.weight_ml,
         products.price,
-        shoping_cart.quantity
-      FROM shoping_cart
-      INNER JOIN products ON shoping_cart.product_id = products.products_id
-      WHERE shoping_cart.user_id = $1
+        shopping_cart.quantity
+      FROM shopping_cart
+      INNER JOIN products ON shopping_cart.product_id = products.products_id
+      WHERE shopping_cart.user_id = $1
     `;
     const results = await db.query(sql, [userId]);
     res.status(200).json(results.rows);
@@ -99,11 +99,11 @@ const update = async (req, res) => {
     }
 
     if (deleteQuantity > 1) {
-      const sql = `UPDATE shoping_cart SET quantity = $1 WHERE product_id = $2 AND user_id = $3`;
+      const sql = `UPDATE shopping_cart SET quantity = $1 WHERE product_id = $2 AND user_id = $3`;
       await db.query(sql, [deleteQuantity, deleteId, userId]);
     } else {
-      const sql = `DELETE FROM shoping_cart WHERE ctId IN
-      (SELECT ctId FROM shoping_cart WHERE product_id = $1 AND user_id = $2 LIMIT 1)`;
+      const sql = `DELETE FROM shopping_cart WHERE ctId IN
+      (SELECT ctId FROM shopping_cart WHERE product_id = $1 AND user_id = $2 LIMIT 1)`;
       await db.query(sql, [deleteId, userId]);
     }
 
