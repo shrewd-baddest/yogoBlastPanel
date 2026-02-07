@@ -16,6 +16,7 @@ import jwt from "jsonwebtoken";
 
      
  const user = results.rows[0];
+//  console.log(user);
      // Compare password
     const isMatch = await bcrypt.compare(Code, user.passcode);
     if (!isMatch) {
@@ -23,7 +24,7 @@ import jwt from "jsonwebtoken";
     }
 
     // Generate JWT token
-    const token = jwt.sign({ id: user.ID }, process.env.SECRET_KEY, { expiresIn: '1h' });
+    const token = jwt.sign({ id: user.id }, process.env.SECRET_KEY, { expiresIn: '1h' });
 
     res.json({ token,status:"success" });
   } catch (error) {

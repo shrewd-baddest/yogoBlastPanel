@@ -24,8 +24,9 @@ const account = async (req, res) => {
 
 const cart = async (req, res) => {
   try {
+    // console.log("id:",req.user);
     if (!req.user || !req.user.id) {
-       return res.status(401).json({ message: "Unauthorized" });
+       return res.status(401).json({ message: "Unauthorized no user" });
     }
 
     const userId = req.user.id;

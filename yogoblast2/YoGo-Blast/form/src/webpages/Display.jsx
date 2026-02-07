@@ -78,7 +78,7 @@ const Display = () => {
 
   const addToCart = async (productId) => {
     const cartData = {
-      Quantity: quantity,
+      quantity: quantity,
       productId,
     };
     console.log(cartData.productId);

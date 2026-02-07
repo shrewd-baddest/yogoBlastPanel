@@ -5,9 +5,10 @@ dotenv.config();
  const blacklistToken = [];
 
 export const logOut = async (req, res) => {
+
   const authHeader = req.headers.authorization;
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  if (!authHeader || !authHeader.startsWith('Bearer')) {
     return res.status(401).json({ status: 'error', message: 'No token provided' });
   }
 
@@ -24,7 +25,7 @@ export const verifyToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ message: 'Unauthorized: Token missing' });
+    return res.status(401).json({ message: 'Unauthorized: Token missing in tokenVerification' });
   }
 
   const token = authHeader.split(' ')[1];
@@ -36,8 +37,10 @@ export const verifyToken = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.SECRET_KEY);
+    console.log(decoded);
     req.user = decoded;
-    next();
+    // console.log(req.user.id);
+     next();
   } catch (err) {
     return res.status(401).json({ message: 'Invalid or expired token' });
   }
