@@ -118,27 +118,32 @@ const update = async (req, res) => {
 const orders=async(req,res)=>{
   const user=req.user.id;
 const {product_id,quantity,price}=req.body;
+const client=db.connect()
  try{
+  await client.query("BEGIN");
 const sql=`SELECT * FROM ORDERS WHERE user_id = $1 ORDER BY order_date DESC LIMIT 1`;
-   const [result]=await db.query(sql,[user]);
+   const [result]=await client.query(sql,[user]);
 
    if (result.length > 0 && result[0].statuz == 0) {
 
     const sql2=`INSERT INTO ORDER_ITEMS(order_id, product_id,price, quantity) VALUES ($1, $2, $3, $4)`;
-        await db.query(sql2,[result[0].id,product_id,quantity,price]);
+        await client.query(sql2,[result[0].id,product_id,quantity,price]);
               res.status(201).json({status: "success", message: "Order items added successfully"});
 
               const noticeSql = `INSERT INTO notifications (type, message) VALUES ($1, $2)`;
               const noticeType = 'order';
               const noticeMessage = `New item has been ordered for #${product_id}.`;
-              await db.query(noticeSql, [noticeType, noticeMessage]);
+              await client.query(noticeSql, [noticeType, noticeMessage]);
 
    }
    
 }
 catch (error) {
+  await client.query("ROLLBACK");
     console.error("Error updating cart:", error);
     res.status(500).json({ message: "Internal server error" });
+  }finally{
+    client.release();
   }
 
 }
@@ -198,7 +203,7 @@ const payment = async (req, res) => {
 
     // 4️ Insert into DB
     const insertSql = `
-      INSERT INTO mpesa_request (checkout_id, user_id, amount, created_at, productId)
+      INSERT INTO mpesa_request (checkout_id, user_id, amount, created_at, product_id)
       VALUES ($1, $2, $3, NOW(), $4)
     `;
     await db.query(insertSql, [checkoutId, userId, price, productId]);

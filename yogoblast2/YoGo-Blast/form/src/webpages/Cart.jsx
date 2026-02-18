@@ -194,7 +194,6 @@ const Cart = () => {
           }}
         >
           <div className="payment-form">
-            {" "}
             <label style={{ fontWeight: "bold" }}>Phone Number:</label>
             <input
               type="tel"
