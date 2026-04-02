@@ -10,15 +10,18 @@ import { fileURLToPath } from "url";
 import User from "./Routers/user.js";
 import pages from "./Routers/pages.js";
 import db from "./controllers/dbConnect.js"; // make sure this exports your db instance
+import callbackRouter from "./Routers/callback.js";
 
 const app = express();
 const port = process.env.PORT || 3001;
 
 // Middleware
+
 app.use(cors());
 app.use(express.json());
 app.use(express.static("public"));
-
+app.set("trust proxy", 1);
+app.use("/callback", callbackRouter);
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
