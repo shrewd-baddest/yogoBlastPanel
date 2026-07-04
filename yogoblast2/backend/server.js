@@ -21,6 +21,12 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static("public"));
 app.set("trust proxy", 1);
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "ok",
+    timestamp: new Date(),
+  });
+});
 app.use("/callback", callbackRouter);
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,

@@ -191,7 +191,7 @@ const payment = async (req, res) => {
         PhoneNumber: phoneNumber,
         // CallBackURL: "https://yogoblastpanel-3.onrender.com/pages/callback",
         callbackURL:
-          " https://68fd-41-89-246-254.ngrok-free.app/callback/postCallback",
+          "https://394b-102-215-33-180.ngrok-free.app/callback/postCallback",
         AccountReference: "YogurtBlast",
         TransactionDesc: "Product purchase",
       },
